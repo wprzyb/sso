@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <div class="col-md-8 col-md-offset-2">
+            <h2 class="page-title">
+                Hey, <b>{{ current_user.gecos }}</b>!
+                <small class="pull-right"><a href="/logout" class="btn btn-default btn-sm">Logout</a></small>
+            </h2>
+            <h3>Authorized applications</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Application name</th>
+                        <th>Scopes</th>
+                        <th>Expires</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for token in tokens %}
+                        <tr>
+                            <td>
+                                {% if token.client.approved %}<small title="This application is approved."><i class="glyphicon glyphicon-ok-circle text-success"></i></small>{% endif %}
+                                {{ token.client.client_name }}
+                            </td>
+                            <td>
+                                {% for scope in token.get_scope().split() %}<code>{{ scope }}</code> {% endfor %}
+                            </td>
+                            <td>{{ token.get_expires_at() }}</td>
+                            <td>
+                                <form class="text-right" method="post" action="{{ url_for('.token_revoke', id=token.id) }}">
+                                    {# FIXME <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>#}
+                                    <button class="btn btn-danger btn-xs">Revoke <i class="glyphicon glyphicon-remove"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan=4 class="placeholder">No authorized applications yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

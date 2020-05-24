@@ -1,0 +1,23 @@
+version: "3"
+services:
+  postgres:
+    # postgres:9.6.17-alpine
+    image: postgres@sha256:c48c87e19b1c9bdc9d1de8a0f53fa1c7f91f887ecc06d0c2efd3f3425090b6c0
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=secret
+
+  backend:
+    build: .
+    ports:
+      - 5000:5000
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - TEMPLATES_AUTO_RELOAD=true
+      - LDAP_BIND_DN
+      - LDAP_BIND_PASSWORD
+
+volumes:
+  pgdata:

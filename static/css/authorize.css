@@ -1,0 +1,29 @@
+body {
+  padding-top: 20px;
+  padding-bottom: 40px;
+  background: #eee url(/static/concrete-texture.png);
+}
+
+#authorize-container{
+    position: relative;
+    margin: 80px auto;
+    padding: 40px 40px 40px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #ccc;
+    max-width: 400px;
+}
+
+#authorize-container h2 {
+    margin-bottom: 10px;
+}
+
+#authorize-container p {
+    font-size: 14px;
+}
+
+td.placeholder {
+    text-align: center;
+    font-style: italic;
+    opacity: 0.5;
+}

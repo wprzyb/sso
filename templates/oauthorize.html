@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container" id="authorize-container">
+    <center><img src="/static/hswaw_wht.svg" style="width: 50%;"/></center>
+    <h2>{{ client.name }}
+        {% if client.approved %}<small title="This application is approved."><sup><i class="glyphicon glyphicon-ok-circle text-success"></i></sup></small>{% endif %}
+    </h2>
+    <h4>This app would like to:</h4>
+    <ul class="list-group">
+    {% if 'profile:read' in scopes and 'profile:write' not in scopes %}
+    <li class="list-group-item">
+        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+        Read your profile data.
+    </li>
+    {% endif %}
+    {% if 'profile:write' in scopes %}
+    <li class="list-group-item">
+        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+        Read <b>and edit</b> your profile data.
+    </li>
+    {% endif %}
+    {% if 'password:write' in scopes %}
+    <li class="list-group-item">
+        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+        <b>Change</b> your password.
+    </li>
+    {% endif %}
+    {% if 'users:read' in scopes %}
+    <li class="list-group-item">
+        <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+        List Hackerspace members.
+    </li>
+    {% endif %}
+    </ul>
+    {{ user }}
+    <h4 style="margin-bottom: 20px;">On your ({{user.username}}) behalf.</h4>
+    <form action="" method="post">
+        {#{{ form.csrf_token }}#}
+      <!--<input type="hidden" name="client_id" value="{{ client.client_id }}">
+      <input type="hidden" name="scope" value="{{ scopes|join(' ') }}">
+      <input type="hidden" name="response_type" value="{{ response_type }}">
+      <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
+      {% if state %}
+      <input type="hidden" name="state" value="{{ state }}">
+  {% endif %}-->
+      <button class="btn btn-lg btn-default" name="confirm" value="yes">
+          <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+          Grant Access
+      </button>
+      <br/>
+      <button class="btn btn-sm btn-danger" name="confirm" value="no" style="margin-top: 20px;">
+          <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+          Deny Access
+      </button>
+    </form>
+  </div>
+  {% endblock %}
