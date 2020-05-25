@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import render_field, render_submit %}
+
+
+{% macro static_field(id, label, value) %}
+    <div class="form-group">
+        <label class="col-md-3 control-label control-label-required" for="{{ id }}">{{ label }}</label>
+        <div class="col-md-9">
+            <input class="form-control" id="{{ id }}" name="{{ id }}" required="" type="text" value="{{ value }}" readonly>
+        </div>
+    </div>
+{% endmacro %}
+{% block content %}
+    <div class="container">
+        <div class="col-md-8 col-md-offset-2">
+            <h2 class="page-header">
+            {% if client is defined %}Client edit{% else %}Client registration{% endif %}
+            </h2>
+            <form action="" class="form-horizontal" method="POST">
+                {{ form.csrf_token }}
+                {{ render_field(form.client_name) }}
+                {{ render_field(form.client_uri) }}
+                {{ render_field(form.redirect_uris) }}
+                {{ render_field(form.token_endpoint_auth_method) }}
+                {{ render_field(form.grant_types) }}
+                {{ render_field(form.response_types) }}
+                <div class="form-group">
+                    <div class="col-md-9 col-md-offset-3">
+                        <button type="submit" class="btn btn-primary btn-block">Save</button>
+                    </div>
+                </div>
+                {% if client is defined %}
+                {{ static_field('client_id', 'Client ID', client.client_id) }}
+                <div class="form-group">
+                    <label class="col-md-3 control-label control-label-required" for="client_secret">Client secret</label>
+                    <div class="col-md-9">
+                        <div class="input-group">
+                            <input class="form-control" id="client_secret" name="client_secret" required="" type="password" value="{{ client.client_secret }}" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" data-toggle="#client_secret"><i class="glyphicon glyphicon-eye-open"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {{ static_field('openid_configuration', 'OpenID Connect Discovery Endpoint', url_for('.openid_configuration', _external=True)) }}
+                {{ static_field('token_endpoint', 'Token Endpoint', url_for('.issue_token', _external=True)) }}
+                {{ static_field('authorize_endpoint', 'Authorize Endpoint', url_for('.authorize', _external=True)) }}
+                {{ static_field('userinfo_endpoint', 'UserInfo Endpoint', url_for('.api_userinfo', _external=True)) }}
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('button[data-toggle]').forEach(e => {
+            e.addEventListener('click', () => {
+                const input = document.querySelector(e.attributes['data-toggle'].value);
+                input.type = (input.type === 'password') ? 'text' : 'password';
+            });
+        });
+    </script>
+{% endblock %}

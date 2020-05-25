@@ -2,8 +2,8 @@ import re
 import requests
 import ldap
 import logging
+from cached_property import cached_property
 from flask import current_app as app
-
 from sso.extensions import login_manager
 
 
@@ -47,7 +47,6 @@ class LDAPUserProxy(object):
         if len(res) != 1:
             raise Exception("No such username.")
         dn, data = res[0]
-        print(dn, data)
 
         self.username = data.get("uid", [b""])[0].decode() or None
         self.gecos = data.get("gecos", [b""])[0].decode() or None
@@ -63,7 +62,7 @@ class LDAPUserProxy(object):
     def email(self):
         return self.username + "@hackerspace.pl"
 
-    # @cached_property
+    @cached_property
     def is_active(self):
         url = "https://kasownik.hackerspace.pl/api/judgement/{}.json"
         try:

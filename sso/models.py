@@ -12,6 +12,8 @@ class Client(db.Model, OAuth2ClientMixin):
 
     id = db.Column(db.Integer, primary_key=True)
 
+    owner_id = db.Column(db.String(40), nullable=True)
+
 
 class AuthorizationCode(db.Model, OAuth2AuthorizationCodeMixin):
     __tablename__ = "oauth2_code"

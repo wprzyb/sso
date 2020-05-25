@@ -1,0 +1,105 @@
+{% macro format_currency(amount, color=True, precision=2) -%}
+{%- if amount == None -%}
+None
+{%- else -%}
+<span class="amount{% if color %}{% if amount < 0 %} amount-negative{% else %} amount-positive{% endif %}{% endif %}" data-original="{{ amount }}">
+    {{ format_currency_raw(amount, precision) }}
+</span>
+{%- endif %}
+{%- endmacro %}
+
+{% macro format_currency_raw(amount, precision=0) -%}
+{{ ("%%.%sf" | format(precision) | format(amount/100)) }}SOG
+{%- endmacro %}
+{% macro render_field(field, prefix=None, suffix=None, layout=True, label=True, split=3) %}
+    {% if field.type == 'HiddenField' or field.type == 'CSRFTokenField' %}
+    {{ field(**kwargs) }}
+    {% else %}
+        {% if layout %}
+        <div class="form-group{% if field.errors %} has-error{% endif %}">
+            {% if field.type == 'BooleanField' %}
+            <div class="col-md-{{ split }}"></div>
+            {% elif label %}
+            {{ field.label(class_='col-md-%s control-label' % (split,) + (' control-label-required' if field.flags.required else '')) }}
+            {% endif %}
+            <div class="col-md-{{ 12 - split }}">
+        {% endif %}
+
+        {{ render_field_inner(field, prefix, suffix, label=label, **kwargs) }}
+
+        {% if layout %}
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{% macro render_field_inner(field, prefix=None, suffix=None, label=True, input_group_class='') %}
+    {% if field.type == 'BooleanField' %}<div class="checkbox"><label for="{{ field.id }}">{% endif %}
+            {% if prefix or suffix %}<div class="input-group {{ input_group_class }}">{% endif %}
+        {% if prefix %}<span class="input-group-addon">{{ prefix }}</span>{% endif %}
+        {% if field.type == 'BooleanField' %}
+        {{ field(**kwargs) }} {% if label %}{{ field.label.text }}{% endif %}
+        {% elif field.type == 'RadioField' %}
+        {{ field(**kwargs) }}
+        {% elif field.type == 'MultiCheckboxField' %}
+        {{ field(**kwargs) }}
+        {% elif field.type == 'FieldList' %}
+        {% for f in field.entries %}
+          {{ render_field_inner(f) }}
+        {% endfor %}
+        {% else %}
+        {{ field(class_='form-control '+kwargs.pop('class_', ''), **kwargs) }}
+        {% endif %}
+        {% if suffix %}<span class="input-group-addon">{{ suffix }}</span>{% endif %}
+    {% if prefix or suffix %}</div>{% endif %}
+    {% if field.description and label %}
+        <span class="help-block">{{ field.description }}</span>
+    {% endif %}
+    {% if field.errors %}
+        {% for error in field.errors %}
+            <span class="help-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+    {% if field.type == 'BooleanField' %}</label></div>{% endif %}
+{% endmacro %}
+
+{% macro render_submit(label='Submit', class_='btn btn-primary', layout=True) %}
+{% if layout %}
+<div class="form-group">
+    <div class="col-md-9 col-md-offset-3">
+{% endif %}
+        <button type="submit" class="{{ class_ }}">{{ label }}</button>
+{% if layout %}
+    </div>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro render_pagination(pagination) %}
+    <ul class="pagination text-center">
+        {% if pagination.has_prev %}
+        <li><a href="{{ url_for_other_page(pagination.page - 1) }}">&laquo;</a></li>
+        {% else %}
+        <li class="disabled"><a>&laquo;</a></li>
+        {% endif %}
+
+        {%- for page in pagination.iter_pages() %}
+        {% if page %}
+            {% if page != pagination.page %}
+                <li><a href="{{ url_for_other_page(page) }}">{{ page }}</a></li>
+            {% else %}
+                <li class="active"><a href="{{ url_for_other_page(page) }}">{{ page }}</a></li>
+            {% endif %}
+        {% else %}
+            <li class="disabled"><a>…</a></li>
+        {% endif %}
+        {%- endfor %}
+
+        {% if pagination.has_next %}
+        <li><a href="{{ url_for_other_page(pagination.page + 1) }}">&raquo;</a></li>
+        {% else %}
+        <li class="disabled"><a>&raquo;</a></li>
+        {% endif %}
+    </ul>
+{% endmacro %}

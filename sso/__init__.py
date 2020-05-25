@@ -21,14 +21,14 @@ def create_app():
     app.register_blueprint(sso.views.bp)
 
     from werkzeug.middleware.proxy_fix import ProxyFix
-    if app.config.get('PROXYFIX_ENABLE'):
-        print('gnuj')
+
+    if app.config.get("PROXYFIX_ENABLE"):
         app.wsgi_app = ProxyFix(
             app.wsgi_app,
-            app.config.get('PROXYFIX_NUM_PROXIES'),
-            app.config.get('PROXYFIX_NUM_PROXIES'),
-            app.config.get('PROXYFIX_NUM_PROXIES'),
-            app.config.get('PROXYFIX_NUM_PROXIES'),
+            app.config.get("PROXYFIX_NUM_PROXIES"),
+            app.config.get("PROXYFIX_NUM_PROXIES"),
+            app.config.get("PROXYFIX_NUM_PROXIES"),
+            app.config.get("PROXYFIX_NUM_PROXIES"),
         )
 
     return app

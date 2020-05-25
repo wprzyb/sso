@@ -9,12 +9,15 @@ from flask import (
     jsonify,
     current_app,
 )
+import uuid
 from flask_login import login_required, current_user, login_user, logout_user
 from sso.directory import LDAPUserProxy, check_credentials
-from sso.models import db, Token
-from sso.forms import LoginForm
+from sso.models import db, Token, Client
+from sso.forms import LoginForm, ClientForm
+from sso.utils import get_object_or_404
 from sso.oauth2 import authorization, require_oauth
 from authlib.oauth2 import OAuth2Error
+from authlib.common.security import generate_token
 from authlib.integrations.flask_oauth2 import current_token
 
 
@@ -27,7 +30,8 @@ bp = Blueprint("sso", __name__)
 def profile():
     return render_template(
         "profile.html",
-        tokens=Token.query.filter(Token.user_id == current_user.username),
+        tokens=Token.query.filter(Token.user_id == current_user.get_user_id()),
+        clients=Client.query.filter(Client.owner_id == current_user.get_user_id()),
     )
 
 
@@ -68,6 +72,45 @@ def logout():
     return redirect("/")
 
 
+@bp.route("/client/create", methods=["GET", "POST"])
+@login_required
+def client_create():
+    form = ClientForm()
+
+    if form.validate_on_submit():
+        client = Client()
+        client.client_id = uuid.uuid4()
+        client.client_secret = generate_token()
+        client.owner_id = current_user.get_user_id()
+        client.set_client_metadata(form.data)
+
+        db.session.add(client)
+        db.session.commit()
+        return redirect(url_for(".client_edit", client_id=client.id))
+
+    return render_template("client_edit.html", form=form)
+
+
+@bp.route("/client/<client_id>", methods=["GET", "POST"])
+@login_required
+def client_edit(client_id):
+    client = get_object_or_404(
+        Client, Client.id == client_id, Client.owner_id == current_user.get_user_id()
+    )
+
+    form = ClientForm(obj=client)
+
+    if form.validate_on_submit():
+        client.set_client_metadata(form.data)
+        db.session.commit()
+        return redirect(url_for(".client_edit", client_id=client.id))
+
+    return render_template("client_edit.html", client=client, form=form)
+
+
+# OAuth API
+
+
 @bp.route("/oauth/authorize", methods=["GET", "POST"])
 @login_required
 def authorize():
@@ -76,6 +119,14 @@ def authorize():
             grant = authorization.validate_consent_request(end_user=current_user)
         except OAuth2Error as error:
             return jsonify(dict(error.get_body()))
+
+        if Token.query.filter(
+            Token.client_id == grant.client.client_id,
+            Token.user_id == current_user.get_user_id(),
+        ).count():
+            # User has unrevoked token already - grant by default
+            return authorization.create_authorization_response(grant_user=current_user)
+
         return render_template(
             "oauthorize.html", user=current_user, grant=grant, client=grant.client
         )
@@ -99,7 +150,6 @@ def issue_token():
 @require_oauth("profile:read")
 def api_profile():
     user = current_token.user
-    print(user.email, user.username, user.gecos, user.phone, user.personal_email)
     return jsonify(
         email=user.email,
         username=user.username,
@@ -129,7 +179,7 @@ def api_userinfo():
 def openid_configuration():
     return jsonify(
         {
-            "issuer": current_app.config['JWT_CONFIG']['iss'],
+            "issuer": current_app.config["JWT_CONFIG"]["iss"],
             "authorization_endpoint": url_for(".authorize", _external=True),
             "token_endpoint": url_for(".issue_token", _external=True),
             "userinfo_endpoint": url_for(".api_userinfo", _external=True),

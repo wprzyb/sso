@@ -27,3 +27,13 @@ td.placeholder {
     font-style: italic;
     opacity: 0.5;
 }
+
+.form-group ul {
+    margin: 0;
+    padding: 0;
+    padding-top: 7px
+}
+
+.form-group li {
+    list-style-type: none;
+}

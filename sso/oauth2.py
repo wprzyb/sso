@@ -113,10 +113,32 @@ class HybridGrant(_OpenIDHybridGrant):
 authorization = AuthorizationServer()
 require_oauth = ResourceProtector()
 
+def save_token(token, request):
+    if request.user:
+        user_id = request.user.get_user_id()
+    else:
+        user_id = None
+    client = request.client
+
+    # FIXME: is this the correct way of handling this? left for backward
+    # compatiblity
+    toks = Token.query.filter_by(client_id=client.client_id,
+                                 user_id=user_id)
+
+    # make sure that every client has only one token connected to a user
+    for t in toks:
+        db.session.delete(t)
+
+    item = Token(
+        client_id=client.client_id,
+        user_id=user_id,
+        **token
+    )
+    db.session.add(item)
+    db.session.commit()
 
 def config_oauth(app):
     query_client = create_query_client_func(db.session, Client)
-    save_token = create_save_token_func(db.session, Token)
     authorization.init_app(app, query_client=query_client, save_token=save_token)
 
     # support all openid grants
