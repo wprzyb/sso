@@ -53,3 +53,10 @@ class ClientForm(FlaskForm):
         choices=[("client_secret_basic", "Basic"), ("client_secret_post", "POST")],
         validators=[DataRequired()],
     )
+
+    scope = MultiCheckboxField(
+        "Allowed scopes",
+        choices=[("profile:read", "profile:read"), ("openid", "openid")],
+        validators=[DataRequired()],
+        default=["openid"],
+    )

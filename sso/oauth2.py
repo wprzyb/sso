@@ -79,7 +79,7 @@ class OpenIDCode(_OpenIDCode):
         return exists_nonce(nonce, request)
 
     def get_jwt_config(self, grant):
-        return app.get('JWT_CONFIG')
+        return app.config.get("JWT_CONFIG")
 
     def generate_user_info(self, user, scope):
         return generate_user_info(user, scope)
@@ -90,7 +90,7 @@ class ImplicitGrant(_OpenIDImplicitGrant):
         return exists_nonce(nonce, request)
 
     def get_jwt_config(self, grant):
-        return app.get('JWT_CONFIG')
+        return app.config.get("JWT_CONFIG")
 
     def generate_user_info(self, user, scope):
         return generate_user_info(user, scope)
@@ -113,6 +113,7 @@ class HybridGrant(_OpenIDHybridGrant):
 authorization = AuthorizationServer()
 require_oauth = ResourceProtector()
 
+
 def save_token(token, request):
     if request.user:
         user_id = request.user.get_user_id()
@@ -122,20 +123,16 @@ def save_token(token, request):
 
     # FIXME: is this the correct way of handling this? left for backward
     # compatiblity
-    toks = Token.query.filter_by(client_id=client.client_id,
-                                 user_id=user_id)
+    toks = Token.query.filter_by(client_id=client.client_id, user_id=user_id)
 
     # make sure that every client has only one token connected to a user
     for t in toks:
         db.session.delete(t)
 
-    item = Token(
-        client_id=client.client_id,
-        user_id=user_id,
-        **token
-    )
+    item = Token(client_id=client.client_id, user_id=user_id, **token)
     db.session.add(item)
     db.session.commit()
+
 
 def config_oauth(app):
     query_client = create_query_client_func(db.session, Client)

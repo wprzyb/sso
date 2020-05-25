@@ -51,7 +51,7 @@
                 </thead>
                 <tbody>
                     {% for client in clients %}
-                        <tr><td>{{ client.client_name }}</td><td><a href="{{ url_for('.client_edit', client_id=client.id) }}" class="btn btn-xs btn-warning">Edit</a></td></tr>
+                        <tr><td>{{ client.client_name }}</td><td class="text-right"><a href="{{ url_for('.client_edit', client_id=client.id) }}" class="btn btn-xs btn-warning">Edit</a></td></tr>
                     {% else %}
                         <tr><td colspan=4 class="placeholder">No registered applications yet</td></tr>
                     {% endfor %}
