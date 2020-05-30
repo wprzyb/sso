@@ -33,7 +33,7 @@ class ClientForm(FlaskForm):
     client_name = StringField("Client name", validators=[DataRequired()])
     client_uri = StringField("Client URI", validators=[DataRequired(), URL()])
     redirect_uris = FieldList(
-        StringField("Redirect URI", validators=[DataRequired(), URL()]), min_entries=1
+        StringField("Redirect URI", validators=[DataRequired(), URL(require_tld=False)]), min_entries=1
     )
     grant_types = MultiCheckboxField(
         "Grant types",
