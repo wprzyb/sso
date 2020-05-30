@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_helpers.html" import csrf_field %}
 
 {% block content %}
     <div class="container">
@@ -30,7 +31,7 @@
                             <td>{{ token.get_expires_at() }}</td>
                             <td>
                                 <form class="text-right" method="post" action="{{ url_for('.token_revoke', id=token.id) }}">
-                                    {# FIXME <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>#}
+                                    {{ csrf_field() }}
                                     <button class="btn btn-danger btn-xs">Revoke <i class="glyphicon glyphicon-remove"></i></button>
                                 </form>
                             </td>

@@ -3,6 +3,9 @@ from environs import Env
 env = Env()
 env.read_env()
 
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+WTF_CSRF_CHECK_DEFAULT = False
+
 SECRET_KEY = env.str("SECRET_KEY", default="randomstring")
 
 db_username = env.str("DATABASE_USERNAME", default="postgres")
@@ -33,7 +36,6 @@ LDAP_BIND_DN = env.str(
     "LDAP_BIND_DN", default="cn=auth,ou=Services,dc=hackerspace,dc=pl"
 )
 LDAP_BIND_PASSWORD = env.str("LDAP_BIND_PASSWORD", default="insert password here")
-SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 PROXYFIX_ENABLE = env.bool('PROXYFIX_ENABLE', default=True)
 PROXYFIX_NUM_PROXIES = env.int('PROXYFIX_NUM_PROXIES', default=1)
@@ -44,3 +46,5 @@ JWT_CONFIG = {
     "iss": "https://sso.hackerspace.pl",
     "exp": 3600,
 }
+
+LOGGING_LEVEL = env.str('LOGGING_LEVEL', default=None)

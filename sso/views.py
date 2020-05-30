@@ -11,6 +11,7 @@ from flask import (
 )
 import uuid
 from flask_login import login_required, current_user, login_user, logout_user
+from sso.extensions import csrf
 from sso.directory import LDAPUserProxy, check_credentials
 from sso.models import db, Token, Client
 from sso.forms import LoginForm, ClientForm
@@ -38,6 +39,8 @@ def profile():
 @bp.route("/token/<int:id>/revoke", methods=["POST"])
 @login_required
 def token_revoke(id):
+    csrf.protect()
+
     token = Token.query.filter(
         Token.user_id == current_user.username, Token.id == id
     ).first()
@@ -109,8 +112,6 @@ def client_edit(client_id):
 
 
 # OAuth API
-
-
 @bp.route("/oauth/authorize", methods=["GET", "POST"])
 @login_required
 def authorize():
@@ -128,8 +129,11 @@ def authorize():
             return authorization.create_authorization_response(grant_user=current_user)
 
         return render_template(
-            "oauthorize.html", user=current_user, grant=grant, client=grant.client
+            "oauthorize.html", user=current_user, grant=grant, client=grant.client,
+            scopes=grant.request.scope.split()
         )
+
+    csrf.protect()
 
     if request.form["confirm"]:
         grant_user = current_user
@@ -139,7 +143,7 @@ def authorize():
     return authorization.create_authorization_response(grant_user=grant_user)
 
 
-@bp.route("/oauth/token", methods=["POST"])
+@bp.route("/oauth/token", methods=["GET", "POST"])
 def issue_token():
     return authorization.create_token_response()
 
@@ -147,7 +151,7 @@ def issue_token():
 # HSWAW specific endpoint
 @bp.route("/api/profile")
 @bp.route("/api/1/profile")
-@require_oauth("profile:read")
+@require_oauth("profile:read openid", "OR")
 def api_profile():
     user = current_token.user
     return jsonify(
@@ -161,8 +165,7 @@ def api_profile():
 
 # OpenIDConnect userinfo
 @bp.route("/api/1/userinfo")
-# @require_oauth("profile:read")
-@require_oauth("openid")
+@require_oauth("profile:read openid", "OR")
 def api_userinfo():
     user = current_token.user
     # user = LDAPUserProxy(flask.request.oauth.user)

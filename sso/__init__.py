@@ -1,6 +1,7 @@
 import flask
-from sso.extensions import db, migrate, login_manager
+from sso.extensions import db, migrate, login_manager, csrf
 from sso.oauth2 import config_oauth
+import logging
 
 
 def create_app():
@@ -14,6 +15,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    csrf.init_app(app)
     config_oauth(app)
 
     import sso.views
@@ -30,5 +32,8 @@ def create_app():
             app.config.get("PROXYFIX_NUM_PROXIES"),
             app.config.get("PROXYFIX_NUM_PROXIES"),
         )
+
+    if app.config.get('LOGGING_LEVEL'):
+        logging.basicConfig(level=app.config['LOGGING_LEVEL'])
 
     return app

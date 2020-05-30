@@ -50,7 +50,7 @@ class ClientForm(FlaskForm):
 
     token_endpoint_auth_method = SelectField(
         "Token endpoint authentication method",
-        choices=[("client_secret_basic", "Basic"), ("client_secret_post", "POST")],
+        choices=[("client_secret_basic", "Basic"), ("client_secret_post", "POST"), ("client_secret_get", "Query args (DEPRECATED)")],
         validators=[DataRequired()],
     )
 

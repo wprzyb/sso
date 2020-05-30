@@ -10,6 +10,7 @@ services:
 
   backend:
     build: .
+    image: registry.k0.hswaw.net/informatic/sso-v2
     ports:
       - 5000:5000
     volumes:
@@ -18,6 +19,7 @@ services:
       - TEMPLATES_AUTO_RELOAD=true
       - LDAP_BIND_DN
       - LDAP_BIND_PASSWORD
+      - LOGGING_LEVEL=DEBUG
 
 volumes:
   pgdata:
