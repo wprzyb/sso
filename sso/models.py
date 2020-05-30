@@ -6,6 +6,7 @@ from authlib.integrations.sqla_oauth2 import (
 from authlib.oauth2.rfc6749.util import scope_to_list, list_to_scope
 from sso.extensions import db
 from sso.directory import LDAPUserProxy
+from datetime import datetime
 
 
 class Client(db.Model, OAuth2ClientMixin):
@@ -53,3 +54,7 @@ class Token(db.Model, OAuth2TokenMixin):
         primaryjoin="Token.client_id == Client.client_id",
         foreign_keys=[client_id],
     )
+
+    @property
+    def expires_at_dt(self):
+        return datetime.fromtimestamp(self.get_expires_at())

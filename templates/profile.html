@@ -28,7 +28,7 @@
                             <td>
                                 {% for scope in token.get_scope().split() %}<code>{{ scope }}</code> {% endfor %}
                             </td>
-                            <td>{{ token.get_expires_at() }}</td>
+                            <td>{{ token.expires_at_dt }}</td>
                             <td>
                                 <form class="text-right" method="post" action="{{ url_for('.token_revoke', id=token.id) }}">
                                     {{ csrf_field() }}
