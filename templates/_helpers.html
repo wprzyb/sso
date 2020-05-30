@@ -34,6 +34,10 @@ None
     {% endif %}
 {% endmacro %}
 
+{% macro add_remove_button() %}
+  <button class="btn btn-default" type="button"><i class="glyphicon glyphicon-remove"></i></button>
+{% endmacro %}
+
 {% macro render_field_inner(field, prefix=None, suffix=None, label=True, input_group_class='') %}
     {% if field.type == 'BooleanField' %}<div class="checkbox"><label for="{{ field.id }}">{% endif %}
             {% if prefix or suffix %}<div class="input-group {{ input_group_class }}">{% endif %}
@@ -46,8 +50,12 @@ None
         {{ field(**kwargs) }}
         {% elif field.type == 'FieldList' %}
         {% for f in field.entries %}
-          {{ render_field_inner(f) }}
+          <div class="input-group" data-fieldlist="{{ field.name }}">
+            {{ render_field_inner(f) }}
+            <span class="input-group-btn" data-remove="">{{ add_remove_button() }}</span>
+          </div>
         {% endfor %}
+        <button class="btn btn-default btn-xs center-block" data-add="{{ field.name }}" type="button"><i class="glyphicon glyphicon-plus"></i> Add</button>
         {% else %}
         {{ field(class_='form-control '+kwargs.pop('class_', ''), **kwargs) }}
         {% endif %}

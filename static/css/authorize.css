@@ -37,3 +37,7 @@ td.placeholder {
 .form-group li {
     list-style-type: none;
 }
+
+.input-group {
+    margin-bottom: 5px;
+}

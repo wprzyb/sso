@@ -53,10 +53,47 @@
     </div>
     <script>
         document.querySelectorAll('button[data-toggle]').forEach(e => {
-            e.addEventListener('click', () => {
+            e.addEventListener('click', evt => {
+                evt.preventDefault();
                 const input = document.querySelector(e.attributes['data-toggle'].value);
                 input.type = (input.type === 'password') ? 'text' : 'password';
+                return false;
             });
         });
+
+        function bindRemove(node) {
+            node.querySelector('[data-remove]').addEventListener('click', evt => {
+                evt.preventDefault();
+
+                if (document.querySelectorAll('[data-fieldlist="' + node.attributes['data-fieldlist'].value + '"]').length === 1) {
+                    return;
+                }
+
+                node.parentNode.removeChild(node);
+            });
+        }
+
+        document.querySelectorAll('[data-fieldlist]').forEach(e => {
+            bindRemove(e);
+        });
+
+        document.querySelectorAll('button[data-add]').forEach(e => {
+            e.addEventListener('click', evt => {
+                evt.preventDefault();
+                const nodes = document.querySelectorAll('[data-fieldlist="' + e.attributes['data-add'].value + '"]');
+                console.info(nodes[nodes.length-1]);
+
+                const newNode = nodes[nodes.length-1].cloneNode(true);
+                let [name, idx] = newNode.querySelector('input').id.split('-');
+                idx = parseInt(idx);
+                newNode.querySelector('input').id = `${name}-${idx+1}`;
+                newNode.querySelector('input').name = `${name}-${idx+1}`;
+                bindRemove(newNode);
+                nodes[nodes.length-1].after(newNode);
+
+                return true;
+            });
+        });
+
     </script>
 {% endblock %}
