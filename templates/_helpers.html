@@ -11,7 +11,7 @@ None
 {% macro format_currency_raw(amount, precision=0) -%}
 {{ ("%%.%sf" | format(precision) | format(amount/100)) }}SOG
 {%- endmacro %}
-{% macro render_field(field, prefix=None, suffix=None, layout=True, label=True, split=3) %}
+{% macro render_field(field, prefix=None, suffix=None, layout=True, label=True, split=4) %}
     {% if field.type == 'HiddenField' or field.type == 'CSRFTokenField' %}
     {{ field(**kwargs) }}
     {% else %}

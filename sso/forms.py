@@ -23,6 +23,18 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = widgets.CheckboxInput()
 
 
+class RadioField(SelectField):
+    """
+    A multiple-select, except displays a list of checkboxes.
+
+    Iterating the field will produce subfields, allowing custom rendering of
+    the enclosed checkbox fields.
+    """
+
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.RadioInput()
+
+
 class LoginForm(FlaskForm):
     username = StringField("username", validators=[DataRequired()])
     password = PasswordField("password", validators=[DataRequired()])
@@ -48,7 +60,7 @@ class ClientForm(FlaskForm):
         default=["code"],
     )
 
-    token_endpoint_auth_method = SelectField(
+    token_endpoint_auth_method = RadioField(
         "Token endpoint authentication method",
         choices=[("client_secret_basic", "Basic"), ("client_secret_post", "POST"), ("client_secret_get", "Query args (DEPRECATED)")],
         validators=[DataRequired()],
