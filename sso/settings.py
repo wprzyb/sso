@@ -41,10 +41,10 @@ PROXYFIX_ENABLE = env.bool('PROXYFIX_ENABLE', default=True)
 PROXYFIX_NUM_PROXIES = env.int('PROXYFIX_NUM_PROXIES', default=1)
 
 JWT_CONFIG = {
-    "key": "secret-key",
-    "alg": "HS256",
-    "iss": "https://sso.hackerspace.pl",
-    "exp": 3600,
+    "key": env.str("JWT_SECRET_KEY", default=SECRET_KEY),
+    "alg": env.str("JWT_ALG", default="HS256"),
+    "iss": env.str("JWT_ISS", default="https://sso.hackerspace.pl"),
+    "exp": env.int("JWT_EXP", default=3600),
 }
 
 LOGGING_LEVEL = env.str('LOGGING_LEVEL', default=None)
