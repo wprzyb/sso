@@ -6,6 +6,9 @@ env.read_env()
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 WTF_CSRF_CHECK_DEFAULT = False
 
+# This needs to be disabled when we use an additional proxy in front of our app
+WTF_CSRF_SSL_STRICT = env.bool("WTF_CSRF_SSL_STRICT", default=False)
+
 SECRET_KEY = env.str("SECRET_KEY", default="randomstring")
 
 db_username = env.str("DATABASE_USERNAME", default="postgres")
