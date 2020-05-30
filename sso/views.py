@@ -124,6 +124,7 @@ def authorize():
         if Token.query.filter(
             Token.client_id == grant.client.client_id,
             Token.user_id == current_user.get_user_id(),
+            Token.scope == grant.request.scope,
         ).count():
             # User has unrevoked token already - grant by default
             return authorization.create_authorization_response(grant_user=current_user)
