@@ -64,6 +64,7 @@ class ClientForm(FlaskForm):
         "Token endpoint authentication method",
         choices=[("client_secret_basic", "Basic"), ("client_secret_post", "POST"), ("client_secret_get", "Query args (DEPRECATED)")],
         validators=[DataRequired()],
+        default='client_secret_post',
     )
 
     scope = MultiCheckboxField(
