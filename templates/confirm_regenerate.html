@@ -1,0 +1,7 @@
+{% extends "confirm_destroy.html" %}
+
+{% block description %}You are about to regenerate client secret for "{{ client.client_name }}"{% endblock %}
+{% block submit %}
+<input type="checkbox" name="revoke" value="yes" id="revoke" /> <label for="revoke">Revoke all access tokens</label>
+<button type="submit" class="btn btn-warning btn-block">Regenerate client secret</button>
+{% endblock %}

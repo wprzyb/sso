@@ -39,8 +39,6 @@ def profile():
 @bp.route("/token/<int:id>/revoke", methods=["POST"])
 @login_required
 def token_revoke(id):
-    csrf.protect()
-
     token = Token.query.filter(
         Token.user_id == current_user.username, Token.id == id
     ).first()
@@ -64,7 +62,7 @@ def login():
 
         flash("Logged in successfully.")
 
-        return redirect(next or url_for("profile"))
+        return redirect(next or url_for(".profile"))
 
     return render_template("login_oauth.html", form=form, next=next)
 
@@ -89,6 +87,7 @@ def client_create():
 
         db.session.add(client)
         db.session.commit()
+        flash('Client has been created.', 'success')
         return redirect(url_for(".client_edit", client_id=client.id))
 
     return render_template("client_edit.html", form=form)
@@ -106,9 +105,46 @@ def client_edit(client_id):
     if form.validate_on_submit():
         client.set_client_metadata(form.data)
         db.session.commit()
+        flash('Client has been changed.', 'success')
         return redirect(url_for(".client_edit", client_id=client.id))
 
     return render_template("client_edit.html", client=client, form=form)
+
+
+@bp.route("/client/<client_id>/destroy", methods=["GET", "POST"])
+def client_destroy(client_id):
+    client = get_object_or_404(
+        Client, Client.id == client_id, Client.owner_id == current_user.get_user_id()
+    )
+
+    if request.method == 'POST':
+        db.session.delete(client)
+        client.revoke_tokens()
+        db.session.commit()
+        flash('Client destroyed.', 'success')
+        return redirect(url_for('.profile'))
+
+    return render_template("confirm_destroy.html", client=client)
+
+
+@bp.route("/client/<client_id>/regenerate", methods=["GET", "POST"])
+def client_regenerate_secret(client_id):
+    client = get_object_or_404(
+        Client, Client.id == client_id, Client.owner_id == current_user.get_user_id()
+    )
+
+    if request.method == 'POST':
+        print(request.form)
+        client.client_secret = generate_token()
+
+        if request.form.get('revoke') == 'yes':
+            client.revoke_tokens()
+
+        db.session.commit()
+        flash('Client secret regenerated.', 'success')
+        return redirect(url_for('.client_edit', client_id=client.id))
+
+    return render_template("confirm_regenerate.html", client=client)
 
 
 # OAuth API
@@ -134,8 +170,6 @@ def authorize():
             scopes=grant.request.scope.split()
         )
 
-    csrf.protect()
-
     if request.form["confirm"]:
         grant_user = current_user
     else:
@@ -145,6 +179,7 @@ def authorize():
 
 
 @bp.route("/oauth/token", methods=["GET", "POST"])
+@csrf.exempt
 def issue_token():
     return authorization.create_token_response()
 
@@ -169,7 +204,6 @@ def api_profile():
 @require_oauth("profile:read openid", "OR")
 def api_userinfo():
     user = current_token.user
-    # user = LDAPUserProxy(flask.request.oauth.user)
     return jsonify(
         sub=user.username,
         name=user.gecos,

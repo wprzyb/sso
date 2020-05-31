@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import csrf_field %}
+
+{% block content %}
+    <div class="container">
+        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <h2 class="page-header">
+                {% block description %}You are about to destroy client "{{ client.client_name }}"{% endblock %}
+            </h2>
+            <p>This action is irreversible.</p>
+            <form action="" class="form-horizontal" method="POST">
+                {{ csrf_field() }}
+                {% block submit %}<button type="submit" class="btn btn-danger btn-block">Destroy</button>{% endblock %}
+            </form>
+        </div>
+    </div>
+{% endblock %}

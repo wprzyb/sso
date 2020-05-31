@@ -43,10 +43,19 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <div class="col-md-4 col-md-offset-4">
+                        <a href="{{ url_for('.client_regenerate_secret', client_id=client.id) }}" class="btn btn-warning btn-block">Regenerate client secret</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('.client_destroy', client_id=client.id) }}" class="btn btn-danger btn-block">Destroy</a>
+                    </div>
+                </div>
                 {{ static_field('openid_configuration', 'OpenID Connect Discovery Endpoint', url_for('.openid_configuration', _external=True)) }}
                 {{ static_field('token_endpoint', 'Token Endpoint', url_for('.issue_token', _external=True)) }}
                 {{ static_field('authorize_endpoint', 'Authorize Endpoint', url_for('.authorize', _external=True)) }}
                 {{ static_field('userinfo_endpoint', 'UserInfo Endpoint', url_for('.api_userinfo', _external=True)) }}
+
                 {% endif %}
             </form>
         </div>
