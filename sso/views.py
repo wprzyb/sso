@@ -82,7 +82,7 @@ def client_create():
 
     if form.validate_on_submit():
         client = Client()
-        client.client_id = uuid.uuid4()
+        client.client_id = str(uuid.uuid4())
         client.client_secret = generate_token()
         client.owner_id = current_user.get_user_id()
         client.set_client_metadata(form.data)
