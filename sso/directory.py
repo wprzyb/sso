@@ -57,15 +57,22 @@ class LDAPUserProxy(object):
         self.phone = data.get("mobile", [b""])[0].decode() or None
         self.personal_email = data.get("mailRoutingAddress", [b""])[0].decode() or None
 
-        self.groups = [
-            data["cn"][0].decode()
-            for dn, data in conn.search_s(
-                app.config["LDAP_GROUPS_BASEDN"],
-                ldap.SCOPE_SUBTREE,
-                app.config["LDAP_GROUP_MEMBERSHIP_FILTER"] % dn,
-                ["cn"],
+        try:
+            self.groups = [
+                data["cn"][0].decode()
+                for dn, data in conn.search_s(
+                    app.config["LDAP_GROUPS_BASEDN"],
+                    ldap.SCOPE_SUBTREE,
+                    app.config["LDAP_GROUP_MEMBERSHIP_FILTER"] % dn,
+                    ["cn"],
+                )
+            ]
+        except ldap.NO_SUCH_OBJECT:
+            logging.warning(
+                "ldap.NO_SUCH_OBJECT occured when searching groups, "
+                "LDAP_BIND_DN likely doesn't have access to groups basedn"
             )
-        ]
+            self.groups = []
 
     def __repr__(self):
         active = "active" if self.is_active else "inactive"

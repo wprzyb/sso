@@ -42,7 +42,7 @@ LDAP_GROUP_MEMBERSHIP_FILTER = env.str(
 )
 
 LDAP_BIND_DN = env.str(
-    "LDAP_BIND_DN", default="cn=auth,ou=Services,dc=hackerspace,dc=pl"
+    "LDAP_BIND_DN", default="cn=sso,ou=Services,dc=hackerspace,dc=pl"
 )
 LDAP_BIND_PASSWORD = env.str("LDAP_BIND_PASSWORD", default="insert password here")
 
