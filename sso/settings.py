@@ -34,6 +34,13 @@ LDAP_UID_FILTER = env.str(
     "LDAP_UID_FILTER", default="(&(objectClass=hsMember)(uid=%s))"
 )
 
+LDAP_GROUPS_BASEDN = env.str(
+    "LDAP_GROUPS_BASEDN", default="ou=Group,dc=hackerspace,dc=pl"
+)
+LDAP_GROUP_MEMBERSHIP_FILTER = env.str(
+    "LDAP_GROUP_MEMBERSHIP_FILTER", default="(&(objectClass=*)(uniqueMember=%s))",
+)
+
 LDAP_BIND_DN = env.str(
     "LDAP_BIND_DN", default="cn=auth,ou=Services,dc=hackerspace,dc=pl"
 )

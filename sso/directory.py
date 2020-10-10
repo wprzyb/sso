@@ -30,6 +30,7 @@ class LDAPUserProxy(object):
         self.username = re.sub(app.config["LDAP_STRIP_RE"], "", username)
         self.is_authenticated = True
         self.is_anonymous = False
+        self.groups = []
 
         if app.config.get("TESTING"):
             self.gecos = "Testing User"
@@ -55,6 +56,16 @@ class LDAPUserProxy(object):
         self.mifare_hashes = data.get("mifareIDHash", [])
         self.phone = data.get("mobile", [b""])[0].decode() or None
         self.personal_email = data.get("mailRoutingAddress", [b""])[0].decode() or None
+
+        self.groups = [
+            data["cn"][0].decode()
+            for dn, data in conn.search_s(
+                app.config["LDAP_GROUPS_BASEDN"],
+                ldap.SCOPE_SUBTREE,
+                app.config["LDAP_GROUP_MEMBERSHIP_FILTER"] % dn,
+                ["cn"],
+            )
+        ]
 
     def __repr__(self):
         active = "active" if self.is_active else "inactive"

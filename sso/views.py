@@ -213,6 +213,7 @@ def api_userinfo():
         email=user.email,
         preferred_username=user.username,
         nickname=user.username,
+        groups=user.groups,
     )
 
 
