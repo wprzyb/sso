@@ -33,7 +33,7 @@ def create_app():
             app.config.get("PROXYFIX_NUM_PROXIES"),
         )
 
-    if app.config.get('LOGGING_LEVEL'):
-        logging.basicConfig(level=app.config['LOGGING_LEVEL'])
+    if app.config.get("LOGGING_LEVEL"):
+        logging.basicConfig(level=app.config["LOGGING_LEVEL"])
 
     return app

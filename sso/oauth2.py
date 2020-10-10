@@ -125,24 +125,20 @@ def _validate_client(query_client, client_id, state=None, status_code=400):
 
     return client
 
+
 def authenticate_client_secret_get(query_client, request):
     """Authenticates clients providing their secret via query args (either via GET or POST) request"""
     data = request.args
-    client_id = data.get('client_id')
-    client_secret = data.get('client_secret')
+    client_id = data.get("client_id")
+    client_secret = data.get("client_secret")
     if client_id and client_secret:
         client = _validate_client(query_client, client_id, request.state)
-        if client.check_token_endpoint_auth_method('client_secret_get') \
-                and client.check_client_secret(client_secret):
-            log.debug(
-                'Authenticate %s via "client_secret_get" '
-                'success', client_id
-            )
+        if client.check_token_endpoint_auth_method(
+            "client_secret_get"
+        ) and client.check_client_secret(client_secret):
+            log.debug('Authenticate %s via "client_secret_get" ' "success", client_id)
             return client
-    log.debug(
-        'Authenticate %s via "client_secret_get" '
-        'failed', client_id
-    )
+    log.debug('Authenticate %s via "client_secret_get" ' "failed", client_id)
 
 
 def save_token(token, request):
@@ -167,9 +163,12 @@ def save_token(token, request):
 
 class CustomAuthorizationCodeGrant(AuthorizationCodeGrant):
     # kill me (inventory)
-    TOKEN_ENDPOINT_HTTP_METHODS = ['GET', 'POST']
+    TOKEN_ENDPOINT_HTTP_METHODS = ["GET", "POST"]
     TOKEN_ENDPOINT_AUTH_METHODS = [
-        'client_secret_basic', 'client_secret_post', 'client_secret_get', 'none'
+        "client_secret_basic",
+        "client_secret_post",
+        "client_secret_get",
+        "none",
     ]
 
     def validate_token_request(self):
@@ -178,15 +177,20 @@ class CustomAuthorizationCodeGrant(AuthorizationCodeGrant):
 
         return super(CustomAuthorizationCodeGrant, self).validate_token_request()
 
+
 class CustomResourceProtector(ResourceProtector):
-    def validate_request(self, scope, request, scope_operator='AND'):
+    def validate_request(self, scope, request, scope_operator="AND"):
         # damn you gerrit
         args = dict(url_decode(urlparse.urlparse(request.uri).query))
-        if args.get('access_token'):
-            token_string = args.get('access_token')
-            return self._token_validators['bearer'](token_string, scope, request, scope_operator)
+        if args.get("access_token"):
+            token_string = args.get("access_token")
+            return self._token_validators["bearer"](
+                token_string, scope, request, scope_operator
+            )
 
-        return super(CustomResourceProtector, self).validate_request(scope, request, scope_operator)
+        return super(CustomResourceProtector, self).validate_request(
+            scope, request, scope_operator
+        )
 
 
 authorization = AuthorizationServer()
@@ -196,7 +200,9 @@ require_oauth = CustomResourceProtector()
 def config_oauth(app):
     query_client = create_query_client_func(db.session, Client)
     authorization.init_app(app, query_client=query_client, save_token=save_token)
-    authorization.register_client_auth_method('client_secret_get', authenticate_client_secret_get)
+    authorization.register_client_auth_method(
+        "client_secret_get", authenticate_client_secret_get
+    )
 
     # support all openid grants
     authorization.register_grant(

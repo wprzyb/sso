@@ -33,7 +33,9 @@ class Client(db.Model, OAuth2ClientMixin):
     def revoke_tokens(self):
         """Revoke all active access/refresh tokens and authorization codes"""
         Token.query.filter(Token.client_id == self.client_id).delete()
-        AuthorizationCode.query.filter(AuthorizationCode.client_id == self.client_id).delete()
+        AuthorizationCode.query.filter(
+            AuthorizationCode.client_id == self.client_id
+        ).delete()
 
 
 class AuthorizationCode(db.Model, OAuth2AuthorizationCodeMixin):

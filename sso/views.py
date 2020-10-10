@@ -87,7 +87,7 @@ def client_create():
 
         db.session.add(client)
         db.session.commit()
-        flash('Client has been created.', 'success')
+        flash("Client has been created.", "success")
         return redirect(url_for(".client_edit", client_id=client.id))
 
     return render_template("client_edit.html", form=form)
@@ -105,7 +105,7 @@ def client_edit(client_id):
     if form.validate_on_submit():
         client.set_client_metadata(form.data)
         db.session.commit()
-        flash('Client has been changed.', 'success')
+        flash("Client has been changed.", "success")
         return redirect(url_for(".client_edit", client_id=client.id))
 
     return render_template("client_edit.html", client=client, form=form)
@@ -117,12 +117,12 @@ def client_destroy(client_id):
         Client, Client.id == client_id, Client.owner_id == current_user.get_user_id()
     )
 
-    if request.method == 'POST':
+    if request.method == "POST":
         db.session.delete(client)
         client.revoke_tokens()
         db.session.commit()
-        flash('Client destroyed.', 'success')
-        return redirect(url_for('.profile'))
+        flash("Client destroyed.", "success")
+        return redirect(url_for(".profile"))
 
     return render_template("confirm_destroy.html", client=client)
 
@@ -133,16 +133,16 @@ def client_regenerate_secret(client_id):
         Client, Client.id == client_id, Client.owner_id == current_user.get_user_id()
     )
 
-    if request.method == 'POST':
+    if request.method == "POST":
         print(request.form)
         client.client_secret = generate_token()
 
-        if request.form.get('revoke') == 'yes':
+        if request.form.get("revoke") == "yes":
             client.revoke_tokens()
 
         db.session.commit()
-        flash('Client secret regenerated.', 'success')
-        return redirect(url_for('.client_edit', client_id=client.id))
+        flash("Client secret regenerated.", "success")
+        return redirect(url_for(".client_edit", client_id=client.id))
 
     return render_template("confirm_regenerate.html", client=client)
 
@@ -166,8 +166,11 @@ def authorize():
             return authorization.create_authorization_response(grant_user=current_user)
 
         return render_template(
-            "oauthorize.html", user=current_user, grant=grant, client=grant.client,
-            scopes=grant.request.scope.split()
+            "oauthorize.html",
+            user=current_user,
+            grant=grant,
+            client=grant.client,
+            scopes=grant.request.scope.split(),
         )
 
     if request.form["confirm"]:

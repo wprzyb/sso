@@ -39,8 +39,8 @@ LDAP_BIND_DN = env.str(
 )
 LDAP_BIND_PASSWORD = env.str("LDAP_BIND_PASSWORD", default="insert password here")
 
-PROXYFIX_ENABLE = env.bool('PROXYFIX_ENABLE', default=True)
-PROXYFIX_NUM_PROXIES = env.int('PROXYFIX_NUM_PROXIES', default=1)
+PROXYFIX_ENABLE = env.bool("PROXYFIX_ENABLE", default=True)
+PROXYFIX_NUM_PROXIES = env.int("PROXYFIX_NUM_PROXIES", default=1)
 
 JWT_CONFIG = {
     "key": env.str("JWT_SECRET_KEY", default=SECRET_KEY),
@@ -49,4 +49,4 @@ JWT_CONFIG = {
     "exp": env.int("JWT_EXP", default=3600),
 }
 
-LOGGING_LEVEL = env.str('LOGGING_LEVEL', default=None)
+LOGGING_LEVEL = env.str("LOGGING_LEVEL", default=None)

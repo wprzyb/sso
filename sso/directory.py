@@ -14,7 +14,7 @@ def connect_to_ldap():
 
 
 def check_credentials(username, password):
-    if app.config.get("TESTING") == True:
+    if app.config.get("TESTING"):
         return True
 
     conn = ldap.initialize(app.config["LDAP_URL"])
@@ -31,7 +31,7 @@ class LDAPUserProxy(object):
         self.is_authenticated = True
         self.is_anonymous = False
 
-        if app.config.get("TESTING") == True:
+        if app.config.get("TESTING"):
             self.gecos = "Testing User"
             self.mifare_hashes = []
             self.phone = "123456789"
@@ -44,8 +44,10 @@ class LDAPUserProxy(object):
             ldap.SCOPE_SUBTREE,
             app.config["LDAP_UID_FILTER"] % self.username,
         )
+
         if len(res) != 1:
             raise Exception("No such username.")
+
         dn, data = res[0]
 
         self.username = data.get("uid", [b""])[0].decode() or None

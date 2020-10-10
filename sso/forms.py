@@ -45,7 +45,10 @@ class ClientForm(FlaskForm):
     client_name = StringField("Client name", validators=[DataRequired()])
     client_uri = StringField("Client URI", validators=[DataRequired(), URL()])
     redirect_uris = FieldList(
-        StringField("Redirect URI", validators=[DataRequired(), URL(require_tld=False)]), min_entries=1
+        StringField(
+            "Redirect URI", validators=[DataRequired(), URL(require_tld=False)]
+        ),
+        min_entries=1,
     )
     grant_types = MultiCheckboxField(
         "Grant types",
@@ -62,9 +65,13 @@ class ClientForm(FlaskForm):
 
     token_endpoint_auth_method = RadioField(
         "Token endpoint authentication method",
-        choices=[("client_secret_basic", "Basic"), ("client_secret_post", "POST"), ("client_secret_get", "Query args (DEPRECATED)")],
+        choices=[
+            ("client_secret_basic", "Basic"),
+            ("client_secret_post", "POST"),
+            ("client_secret_get", "Query args (DEPRECATED)"),
+        ],
         validators=[DataRequired()],
-        default='client_secret_post',
+        default="client_secret_post",
     )
 
     scope = MultiCheckboxField(
