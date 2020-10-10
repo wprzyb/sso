@@ -1,4 +1,7 @@
-**/.ropeproject/*
+**/.ropeproject
+**/__pycache__
+**/.mypy_cache
 **/*.py[co]
 **/.env
 **/*.pem
+**/.git
