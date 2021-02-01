@@ -41,7 +41,14 @@ def exists_nonce(nonce, req):
 
 
 def generate_user_info(user, scope):
-    return UserInfo(sub=str(user.get_user_id()), name=user.username)
+    return UserInfo(
+        sub=user.username,
+        name=user.gecos,
+        email=user.email,
+        preferred_username=user.username,
+        nickname=user.username,
+        groups=user.groups,
+        )
 
 
 def create_authorization_code(client, grant_user, request):

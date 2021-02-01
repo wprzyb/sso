@@ -16,7 +16,7 @@ from sso.directory import LDAPUserProxy, check_credentials
 from sso.models import db, Token, Client
 from sso.forms import LoginForm, ClientForm
 from sso.utils import get_object_or_404
-from sso.oauth2 import authorization, require_oauth
+from sso.oauth2 import authorization, require_oauth, generate_user_info
 from authlib.oauth2 import OAuth2Error
 from authlib.common.security import generate_token
 from authlib.integrations.flask_oauth2 import current_token
@@ -206,15 +206,7 @@ def api_profile():
 @bp.route("/api/1/userinfo")
 @require_oauth("profile:read openid", "OR")
 def api_userinfo():
-    user = current_token.user
-    return jsonify(
-        sub=user.username,
-        name=user.gecos,
-        email=user.email,
-        preferred_username=user.username,
-        nickname=user.username,
-        groups=user.groups,
-    )
+    return jsonify(generate_user_info(current_token.user, current_token.scope))
 
 
 @bp.route("/.well-known/openid-configuration")
