@@ -16,12 +16,22 @@ services:
     volumes:
       - .:/usr/src/app
     environment:
-      - TESTING=1
+
       - TEMPLATES_AUTO_RELOAD=true
       - AUTHLIB_INSECURE_TRANSPORT=1
+
+      # Set these to your testing LDAP dn/password
       - LDAP_BIND_DN
       - LDAP_BIND_PASSWORD
+      # ...or uncomment this to allow any login with some mocked user info
+      # - TESTING=1
+
       - LOGGING_LEVEL=DEBUG
+
+      # Uncomment these to enable proper RSA JWT id_tokens signing
+      # - JWT_PRIVATE_KEY=private.pem
+      # - JWT_PUBLIC_KEYS=public.pem,public.pem
+      # - JWT_ALG=RS256
 
 volumes:
   pgdata:

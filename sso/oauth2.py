@@ -25,14 +25,6 @@ import logging
 log = logging.getLogger(__name__)
 
 
-DUMMY_JWT_CONFIG = {
-    "key": "secret-key",
-    "alg": "HS256",
-    "iss": "https://sso.hackerspace.pl",
-    "exp": 3600,
-}
-
-
 def exists_nonce(nonce, req):
     exists = AuthorizationCode.query.filter_by(
         client_id=req.client_id, nonce=nonce
@@ -48,7 +40,7 @@ def generate_user_info(user, scope):
         preferred_username=user.username,
         nickname=user.username,
         groups=user.groups,
-        )
+    )
 
 
 def create_authorization_code(client, grant_user, request):
@@ -116,7 +108,7 @@ class HybridGrant(_OpenIDHybridGrant):
         return exists_nonce(nonce, request)
 
     def get_jwt_config(self):
-        return DUMMY_JWT_CONFIG
+        return app.config.get("JWT_CONFIG")
 
     def generate_user_info(self, user, scope):
         return generate_user_info(user, scope)

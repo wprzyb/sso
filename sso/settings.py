@@ -51,9 +51,24 @@ LDAP_BIND_PASSWORD = env.str("LDAP_BIND_PASSWORD", default="insert password here
 PROXYFIX_ENABLE = env.bool("PROXYFIX_ENABLE", default=True)
 PROXYFIX_NUM_PROXIES = env.int("PROXYFIX_NUM_PROXIES", default=1)
 
+import pathlib
+from authlib.jose import jwk
+
+jwt_alg = env.str("JWT_ALG", default="HS256")
+
+if jwt_alg == "HS256":
+    jwt_privkey = env.str("JWT_SECRET_KEY", default=SECRET_KEY)
+    JWT_PUBLIC_KEYS = []
+else:
+    jwt_privkey = jwk.dumps(env.path("JWT_PRIVATE_KEY").read_text(), kty="RSA")
+    JWT_PUBLIC_KEYS = [
+        jwk.dumps(pathlib.Path(pub).read_text(), kty="RSA")
+        for pub in env.list("JWT_PUBLIC_KEYS")
+    ]
+
 JWT_CONFIG = {
-    "key": env.str("JWT_SECRET_KEY", default=SECRET_KEY),
-    "alg": env.str("JWT_ALG", default="HS256"),
+    "key": jwt_privkey,
+    "alg": jwt_alg,
     "iss": env.str("JWT_ISS", default="https://sso.hackerspace.pl"),
     "exp": env.int("JWT_EXP", default=3600),
 }

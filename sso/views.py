@@ -173,7 +173,6 @@ def authorize():
     except OAuth2Error as error:
         return render_template("authorization_error.html", error=dict(error.get_body()))
 
-    print(grant)
     if grant.client.membership_required and not current_user.is_membership_active:
         return render_template("membership_required.html")
 
@@ -239,6 +238,11 @@ def api_userinfo():
     return jsonify(generate_user_info(user, current_token.scope))
 
 
+@bp.route("/.well-known/jwks.json")
+def jwks_endpoint():
+    return jsonify({"keys": current_app.config["JWT_PUBLIC_KEYS"]})
+
+
 @bp.route("/.well-known/openid-configuration")
 def openid_configuration():
     return jsonify(
@@ -247,6 +251,7 @@ def openid_configuration():
             "authorization_endpoint": url_for(".authorize", _external=True),
             "token_endpoint": url_for(".issue_token", _external=True),
             "userinfo_endpoint": url_for(".api_userinfo", _external=True),
+            "jwks_uri": url_for(".jwks_endpoint", _external=True),
             "response_types_supported": ["code", "id_token", "token id_token"],
             "token_endpoint_auth_methods_supported": [
                 "client_secret_basic",
