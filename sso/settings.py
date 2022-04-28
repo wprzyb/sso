@@ -10,6 +10,8 @@ WTF_CSRF_SSL_STRICT = env.bool("WTF_CSRF_SSL_STRICT", default=False)
 
 SECRET_KEY = env.str("SECRET_KEY", default="randomstring")
 
+TESTING = env.bool("TESTING", default=False)
+
 db_username = env.str("DATABASE_USERNAME", default="postgres")
 db_password = env.str("DATABASE_PASSWORD", default="secret")
 db_hostname = env.str("DATABASE_HOSTNAME", default="postgres")

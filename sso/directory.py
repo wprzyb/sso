@@ -82,16 +82,20 @@ class LDAPUserProxy(object):
     def email(self):
         return self.username + "@hackerspace.pl"
 
-    @cached_property
     def is_active(self):
+        return True
+
+    @cached_property
+    def is_membership_active(self):
         url = "https://kasownik.hackerspace.pl/api/judgement/{}.json"
         try:
             r = requests.get(url.format(self.username))
-            return bool(r.json()["content"])
+            r.raise_for_status()
+            data = r.json()
+            return data["status"] == "ok" and data["content"]
         except Exception as e:
             logging.error("When getting data from Kasownik: {}".format(e))
-            # Fail-safe.
-            return True
+            return False
 
     def get_id(self):
         return self.username

@@ -10,6 +10,7 @@ from flask import (
     current_app,
 )
 import uuid
+from functools import wraps
 from flask_login import login_required, current_user, login_user, logout_user
 from sso.extensions import csrf
 from sso.directory import LDAPUserProxy, check_credentials
@@ -23,6 +24,17 @@ from authlib.integrations.flask_oauth2 import current_token
 
 
 bp = Blueprint("sso", __name__)
+
+
+def membership_required(fn):
+    @wraps(fn)
+    def wrapped(*args, **kwargs):
+        print(current_user.is_membership_active)
+        if current_user.is_anonymous or not current_user.is_membership_active:
+            return render_template("membership_required.html")
+        return fn(*args, **kwargs)
+
+    return wrapped
 
 
 @bp.route("/")
@@ -75,6 +87,7 @@ def logout():
 
 @bp.route("/client/create", methods=["GET", "POST"])
 @login_required
+@membership_required
 def client_create():
     form = ClientForm()
 
@@ -95,6 +108,7 @@ def client_create():
 
 @bp.route("/client/<client_id>", methods=["GET", "POST"])
 @login_required
+@membership_required
 def client_edit(client_id):
     client = get_object_or_404(
         Client, Client.id == client_id, Client.owner_id == current_user.get_user_id()
@@ -112,6 +126,8 @@ def client_edit(client_id):
 
 
 @bp.route("/client/<client_id>/destroy", methods=["GET", "POST"])
+@login_required
+@membership_required
 def client_destroy(client_id):
     client = get_object_or_404(
         Client, Client.id == client_id, Client.owner_id == current_user.get_user_id()
@@ -128,13 +144,14 @@ def client_destroy(client_id):
 
 
 @bp.route("/client/<client_id>/regenerate", methods=["GET", "POST"])
+@login_required
+@membership_required
 def client_regenerate_secret(client_id):
     client = get_object_or_404(
         Client, Client.id == client_id, Client.owner_id == current_user.get_user_id()
     )
 
     if request.method == "POST":
-        print(request.form)
         client.client_secret = generate_token()
 
         if request.form.get("revoke") == "yes":
@@ -151,12 +168,16 @@ def client_regenerate_secret(client_id):
 @bp.route("/oauth/authorize", methods=["GET", "POST"])
 @login_required
 def authorize():
-    if request.method == "GET":
-        try:
-            grant = authorization.validate_consent_request(end_user=current_user)
-        except OAuth2Error as error:
-            return jsonify(dict(error.get_body()))
+    try:
+        grant = authorization.validate_consent_request(end_user=current_user)
+    except OAuth2Error as error:
+        return render_template("authorization_error.html", error=dict(error.get_body()))
 
+    print(grant)
+    if grant.client.membership_required and not current_user.is_membership_active:
+        return render_template("membership_required.html")
+
+    if request.method == "GET":
         if Token.query.filter(
             Token.client_id == grant.client.client_id,
             Token.user_id == current_user.get_user_id(),
@@ -193,6 +214,10 @@ def issue_token():
 @require_oauth("profile:read openid", "OR")
 def api_profile():
     user = current_token.user
+
+    if current_token.client.membership_required and not user.is_membership_active:
+        abort(402)
+
     return jsonify(
         email=user.email,
         username=user.username,
@@ -206,7 +231,12 @@ def api_profile():
 @bp.route("/api/1/userinfo")
 @require_oauth("profile:read openid", "OR")
 def api_userinfo():
-    return jsonify(generate_user_info(current_token.user, current_token.scope))
+    user = current_token.user
+
+    if current_token.client.membership_required and not user.is_membership_active:
+        abort(402)
+
+    return jsonify(generate_user_info(user, current_token.scope))
 
 
 @bp.route("/.well-known/openid-configuration")

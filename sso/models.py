@@ -16,6 +16,10 @@ class Client(db.Model, OAuth2ClientMixin):
 
     owner_id = db.Column(db.String(40), nullable=True)
 
+    membership_required = db.Column(
+        db.Boolean, nullable=False, default=True, server_default="1"
+    )
+
     def __repr__(self):
         return "<Client %s>" % (self.client_id,)
 

@@ -16,7 +16,9 @@ services:
     volumes:
       - .:/usr/src/app
     environment:
+      - TESTING=1
       - TEMPLATES_AUTO_RELOAD=true
+      - AUTHLIB_INSECURE_TRANSPORT=1
       - LDAP_BIND_DN
       - LDAP_BIND_PASSWORD
       - LOGGING_LEVEL=DEBUG

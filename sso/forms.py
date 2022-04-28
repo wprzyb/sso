@@ -80,3 +80,9 @@ class ClientForm(FlaskForm):
         validators=[DataRequired()],
         default=["openid"],
     )
+
+    membership_required = BooleanField(
+        "Active membership required",
+        default=True,
+        description="User will be refused authorization to this client if their membership in Kasownik is not active",
+    )
