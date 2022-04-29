@@ -86,3 +86,24 @@ class ClientForm(FlaskForm):
         default=True,
         description="User will be refused authorization to this client if their membership in Kasownik is not active",
     )
+
+    def populate_obj(self, obj):
+        client_metadata_keys = [
+            "client_name",
+            "client_uri",
+            "redirect_uris",
+            "grant_types",
+            "response_types",
+            "token_endpoint_auth_method",
+            "scope",
+        ]
+
+        metadata = {}
+
+        for name, field in self._fields.items():
+            if name in client_metadata_keys:
+                metadata[name] = self.data[name]
+            else:
+                field.populate_obj(obj, name)
+
+        obj.set_client_metadata(metadata)

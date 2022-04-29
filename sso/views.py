@@ -96,7 +96,7 @@ def client_create():
         client.client_id = str(uuid.uuid4())
         client.client_secret = generate_token()
         client.owner_id = current_user.get_user_id()
-        client.set_client_metadata(form.data)
+        form.populate_obj(client)
 
         db.session.add(client)
         db.session.commit()
@@ -117,7 +117,7 @@ def client_edit(client_id):
     form = ClientForm(obj=client)
 
     if form.validate_on_submit():
-        client.set_client_metadata(form.data)
+        form.populate_obj(client)
         db.session.commit()
         flash("Client has been changed.", "success")
         return redirect(url_for(".client_edit", client_id=client.id))
