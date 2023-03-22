@@ -4,25 +4,32 @@ services:
     # postgres:9.6.17-alpine
     image: postgres@sha256:c48c87e19b1c9bdc9d1de8a0f53fa1c7f91f887ecc06d0c2efd3f3425090b6c0
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./pgdata:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=secret
+    command: -p 5433
+    restart: always
 
   backend:
     build: .
     image: registry.k0.hswaw.net/informatic/sso-v2
     ports:
-      - 5000:5000
+      - 8037:5000
+    depends_on:
+      - postgres
     volumes:
       - .:/usr/src/app
+    env_file:
+      - sso.env
+    restart: always
     environment:
-
+    
       - TEMPLATES_AUTO_RELOAD=true
       - AUTHLIB_INSECURE_TRANSPORT=1
-
+      - DATABASE_PORT=5433
       # Set these to your testing LDAP dn/password
-      - LDAP_BIND_DN
-      - LDAP_BIND_PASSWORD
+      # - LDAP_BIND_DN
+      # - LDAP_BIND_PASSWORD
       # ...or uncomment this to allow any login with some mocked user info
       # - TESTING=1
 
@@ -32,6 +39,3 @@ services:
       # - JWT_PRIVATE_KEY=private.pem
       # - JWT_PUBLIC_KEYS=public.pem,public.pem
       # - JWT_ALG=RS256
-
-volumes:
-  pgdata:

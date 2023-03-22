@@ -34,7 +34,7 @@ class LDAPUserProxy(object):
 
         if app.config.get("TESTING"):
             self.gecos = "Testing User"
-            self.mifare_hashes = []
+            # self.mifare_hashes = []
             self.phone = "123456789"
             self.personal_email = "testing@gmail.com"
             return
@@ -52,11 +52,11 @@ class LDAPUserProxy(object):
         dn, data = res[0]
 
         self.username = data.get("uid", [b""])[0].decode() or None
-        self.gecos = data.get("gecos", [b""])[0].decode() or None
-        self.mifare_hashes = data.get("mifareIDHash", [])
+        self.gecos = data.get("cn", [b""])[0].decode() or None
+        self.is_active_member = data.get('isHSWroMember', [b""])[0] == b'TRUE'
+        # self.mifare_hashes = data.get("mifareIDHash", [])
         self.phone = data.get("mobile", [b""])[0].decode() or None
-        self.personal_email = data.get("mailRoutingAddress", [b""])[0].decode() or None
-
+        self.personal_email = data.get("contactMail", [b""])[0].decode() or None
         try:
             self.groups = [
                 data["cn"][0].decode()
@@ -87,15 +87,7 @@ class LDAPUserProxy(object):
 
     @cached_property
     def is_membership_active(self):
-        url = "https://kasownik.hackerspace.pl/api/judgement/{}.json"
-        try:
-            r = requests.get(url.format(self.username))
-            r.raise_for_status()
-            data = r.json()
-            return data["status"] == "ok" and data["content"]
-        except Exception as e:
-            logging.error("When getting data from Kasownik: {}".format(e))
-            return False
+        return self.is_active_member
 
     def get_id(self):
         return self.username
