@@ -1,7 +1,7 @@
 body {
   padding-top: 20px;
   padding-bottom: 40px;
-  background: #eee url(/static/concrete-texture.png);
+  background: #eee
 }
 
 .form-signin {
