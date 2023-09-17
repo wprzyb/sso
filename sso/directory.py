@@ -80,7 +80,7 @@ class LDAPUserProxy(object):
 
     @property
     def email(self):
-        return self.username + "@hackerspace.pl"
+        return self.personal_email
 
     def is_active(self):
         return True
